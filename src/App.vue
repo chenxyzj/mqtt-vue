@@ -12,7 +12,7 @@ export default {
         endpoint: '/mqtt',
         clean: true, // 保留会话
         connectTimeout: 4000, // 超时时间
-        reconnectPeriod: 4000, // 重连时间间隔
+        reconnectPeriod: 0, // 重连时间间隔
         // 认证信息
         clientId: 'mqttjs_3be2c321',
         username: 'emqx_test',
@@ -71,7 +71,23 @@ export default {
       this.client.on('reconnect', () => {
         console.log('reconnect');
         this.connectionOk = true;
-      })      
+      })    
+      this.client.on('close',() =>{
+        console.log('close');
+        this.connectionOk = false;
+      })  
+      this.client.on('disconnect',()=>{
+        console.log('disconnect');
+        this.connectionOk =false;
+      })
+      this.client.on('offline',()=>{
+        console.log('offline');
+        this.connectionOk=false;
+      })
+      this.client.on('end',()=>{
+        console.log('end');
+        this.connectionOk=false;
+      })
       this.client.on('error', error => {
         console.log('Connection failed', error);
         this.connectionOk =false;
@@ -110,7 +126,7 @@ export default {
       })
     },
     destroyConnection() {
-      if (this.connectionOk) {
+      if (this.connectionOk && this.client.connected) {
         try {
           this.client.end()
           this.client = {
