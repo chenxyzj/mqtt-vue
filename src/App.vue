@@ -11,12 +11,12 @@ export default {
         port: 8083,
         endpoint: '/mqtt',
         clean: true, // 保留会话
-        connectTimeout: 4000, // 超时时间
+        connectTimeout: 8000, // 超时时间
         reconnectPeriod: 0, // 重连时间间隔
         // 认证信息
-        clientId: 'mqttjs_3be2c321',
-        username: 'emqx_test',
-        password: 'emqx_test',
+        clientId: 'mqttjs_'+ Math.random().toString().substring(2,8),
+        username: 'mqtttest',
+        password: 'mqtttest',
       },
       subscription: {
         topic: '/cxy1/led',
