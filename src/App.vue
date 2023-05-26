@@ -37,6 +37,7 @@ export default {
         connected: false,
       },
       subscribeSuccess: false,
+      connectionOk: false
     }
   },
   // created(){
@@ -64,10 +65,16 @@ export default {
         console.log('mqtt.connect error', error)
       }
       this.client.on('connect', () => {
-        console.log('Connection succeeded!')
+        console.log('Connection succeeded!');
+        this.connectionOk = true;
       })
+      this.client.on('reconnect', () => {
+        console.log('reconnect');
+        this.connectionOk = true;
+      })      
       this.client.on('error', error => {
         console.log('Connection failed', error);
+        this.connectionOk =false;
       })
       this.client.on('message', (topic, message) => {
         this.receiveNews = this.receiveNews.concat(message)
@@ -103,12 +110,13 @@ export default {
       })
     },
     destroyConnection() {
-      if (this.client.connected) {
+      if (this.connectionOk) {
         try {
           this.client.end()
           this.client = {
             connected: false,
           }
+          this.connectionOk=false;
           console.log('Successfully disconnected!')
         } catch (error) {
           console.log('Disconnect failed', error.toString())
@@ -125,11 +133,11 @@ export default {
 
     <div class="wrapper">
       <h1>hello {{ msg }}</h1>
-      <button @click="createConnection">连接MQTT服务器</button>
-      <button @click="destroyConnection">端开MQTT服务器</button>
-      <button @click="doSubscribe">订阅主题led</button>
-      <button @click="doUnSubscribe">取消订阅led</button>
-      <button @click="{ doPublish();}">开关led</button>
+      <button @click="createConnection" :disabled="connectionOk">连接MQTT服务器</button>
+      <button @click="destroyConnection" :disabled="!connectionOk">断开MQTT服务器</button>
+      <button @click="doSubscribe" :disabled="!connectionOk">订阅主题led</button>
+      <button @click="doUnSubscribe" :disabled="!connectionOk">取消订阅led</button>
+      <button @click="{ doPublish();} " :disabled="!connectionOk">开关led</button>
     </div>
   </header>
 
